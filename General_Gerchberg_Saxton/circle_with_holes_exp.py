@@ -46,7 +46,7 @@ def run_inpainting_experiment(target_img):
     # 3. Run
     print("Running Inpainting Experiment...")
     initial_guess = np.random.rand(size, size) + 1j * np.random.rand(size, size)
-    recovered, errs = generalized_gs(initial_guess, constraint_X, constraint_Y, iterations=1500)
+    recovered, errs = generalized_gs(initial_guess, constraint_X, constraint_Y, iterations=5000)
 
     return recovered, mask_X, errs
 

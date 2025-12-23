@@ -39,10 +39,10 @@ def run_sparse_control_experiment(size=256):
 
     # --- B. Create TWO Independent Random Masks ---
     #np.random.seed(42)  # Seed for the Cat mask (M_X)
-    mask_X = np.random.rand(size, size) > 0.6
+    mask_X = np.random.rand(size, size) > 0.25
 
     #np.random.seed(99)  # DIFFERENT Seed for the Flower mask (M_Y)
-    mask_Y = np.random.rand(size, size) > 0.6
+    mask_Y = np.random.rand(size, size) > 0.57
 
     # Pre-calculate the fixed reference value for efficiency (Amplitude + Zero Phase)
     # These references are used inside the constraints to enforce immutability.
@@ -57,7 +57,7 @@ def run_sparse_control_experiment(size=256):
         """
         out = field.copy()
         # Enforce the fixed reference complex value on the M_X mask
-        out[mask_X] = fixed_ref_X[mask_X]
+        out[mask_X] = fixed_ref_X[mask_X] * np.exp(1j * np.angle(field[mask_X]))
         return out
 
     def constraint_Y(field):
@@ -66,14 +66,14 @@ def run_sparse_control_experiment(size=256):
         """
         out = field.copy()
         # Enforce the fixed reference complex value on the M_Y mask
-        out[mask_Y] = fixed_ref_Y[mask_Y]
+        out[mask_Y] = fixed_ref_Y[mask_Y]*np.exp(1j * np.angle(field[mask_Y]))
         return out
 
     # --- D. Run ---
     initial_guess = np.random.rand(size, size) + 1j * np.random.rand(size, size)
 
     # CRITICAL FIX: Increased iterations for convergence in rigid, double-sided problem
-    field_X, errs = generalized_gs(initial_guess, constraint_X, constraint_Y, iterations=500)
+    field_X, errs = generalized_gs(initial_guess, constraint_X, constraint_Y, iterations=300)
 
     field_Y = np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(field_X)))
 
